@@ -2,30 +2,72 @@ package com.wealthwise.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
-// Marks this class as a database table for Spring Boot
-@Entity
-// Specifies the exact table name in PostgreSQL (avoids using the reserved word "user")
-@Table(name = "users")
-// Lombok magic: Automatically creates Getters and Setters behind the scenes
+import java.util.Collection;
+import java.util.List;
+
+// NOTE: By implementing UserDetails, I integrate this JPA entity directly into Spring Security's authentication manager.
 @Data
-public class User {
+@Entity
+@Table(name = "users")
+public class User implements UserDetails {
 
-    // Marks this field as the Primary Key
     @Id
-    // Tells PostgreSQL to automatically increment the ID (1, 2, 3...) for new users
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Enforces rules: Email cannot be empty (nullable = false) and must be unique
     @Column(nullable = false, unique = true)
     private String email;
 
-    // Stores the encrypted password. Never store raw passwords!
+    // NOTE: Passwords must NEVER be stored in plain text. This will hold the Bcrypt hashed version.
     @Column(nullable = false)
     private String passwordHash;
 
-    // Restricts the column to 3 characters (e.g., LKR, USD) and sets a default
-    @Column(nullable = false, length = 3)
-    private String baseCurrency = "LKR"; 
+    @Column(nullable = false)
+    private String baseCurrency = "LKR";
+
+    /*
+     * NOTE: The methods below are required by the UserDetails interface.
+     * They tell Spring Security what permissions the user has and if their account is active.
+     */
+    
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // Assigning a default 'USER' role for basic authorization.
+        return List.of(new SimpleGrantedAuthority("ROLE_USER"));
+    }
+
+    @Override
+    public String getPassword() {
+        return passwordHash;
+    }
+
+    @Override
+    public String getUsername() {
+        // We use email as the unique username for logging in.
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
