@@ -1,8 +1,12 @@
 /*
- * THEORY: Unified Dark Cash Flow Engine
- * --------------------------------------
- * Client component combining dynamic form inputs with high-velocity ledger telemetry.
- * Styled with slate-900 glassmorphism, glowing focus rings, and high-contrast badges.
+ * THEORY: Unified Dark Cash Flow Engine with Normalized Input System
+ * -------------------------------------------------------------------
+ * 1. UI Normalization: All form controls (amount input, custom select, category input,
+ *    and submit CTA) are locked to an explicit baseline height (h-[42px]).
+ * 2. Custom Select Chroming: 'appearance-none' strips away native OS select widgets.
+ *    A dedicated SVG chevron icon provides platform-consistent visuals across macOS, Windows, and Linux.
+ * 3. Reactive Ledger Sync: Forms re-trigger loadTransactions() upon 200 OK responses to refresh
+ *    both the data table and the telemetry metrics without requiring page navigation.
  */
 "use client";
 
@@ -130,7 +134,7 @@ export default function CashFlowPage() {
         </div>
       )}
 
-      {/* Dark Form Card */}
+      {/* Dark Form Card with Aligned Input System */}
       <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl backdrop-blur-sm">
         <h3 className="text-base font-bold text-white mb-6 flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-blue-500" />
@@ -138,6 +142,7 @@ export default function CashFlowPage() {
         </h3>
 
         <form onSubmit={handleSaveTransaction} className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+          {/* AMOUNT INPUT */}
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
               Amount (LKR)
@@ -149,24 +154,33 @@ export default function CashFlowPage() {
               value={amount}
               onChange={(e) => setAmount(e.target.value)}
               placeholder="e.g. 125000"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full h-[42px] px-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all font-mono"
             />
           </div>
 
+          {/* CUSTOM TRANSACTION TYPE SELECT */}
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
               Transaction Type
             </label>
-            <select
-              value={type}
-              onChange={(e) => setType(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-            >
-              <option value="INCOME">Income (Credit)</option>
-              <option value="EXPENSE">Expense (Debit)</option>
-            </select>
+            <div className="relative">
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="w-full h-[42px] px-4 pr-10 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all appearance-none cursor-pointer"
+              >
+                <option value="INCOME">Income (Credit)</option>
+                <option value="EXPENSE">Expense (Debit)</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-400">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
           </div>
 
+          {/* CATEGORY INPUT */}
           <div>
             <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
               Category
@@ -177,10 +191,11 @@ export default function CashFlowPage() {
               value={category}
               onChange={(e) => setCategory(e.target.value)}
               placeholder="e.g. Salary, Rent, Utilities"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              className="w-full h-[42px] px-4 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
             />
           </div>
 
+          {/* SUBMIT BUTTON */}
           <button
             type="submit"
             disabled={submitting}
