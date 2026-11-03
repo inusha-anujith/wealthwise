@@ -15,6 +15,7 @@ import com.wealthwise.backend.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.wealthwise.backend.entity.TransactionCategory;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -47,7 +48,8 @@ public class AssetService {
             expense.setUser(currentUser);
             expense.setAmount(totalCost);
             expense.setType(TransactionType.EXPENSE);
-            expense.setCategory("Investment: " + ticker);
+            expense.setCategory(TransactionCategory.STOCK_PURCHASE);
+            expense.setDescription(ticker);
             expense.setTransactionDate(LocalDate.now());
             expense.setSourceType(TransactionSource.ASSET_PURCHASE);
             expense.setSourceId(savedAsset.getId());

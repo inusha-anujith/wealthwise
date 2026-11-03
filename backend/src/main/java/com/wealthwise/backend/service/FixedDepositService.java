@@ -13,6 +13,7 @@ import com.wealthwise.backend.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.wealthwise.backend.entity.TransactionCategory;
 
 import java.util.List;
 
@@ -39,7 +40,8 @@ public class FixedDepositService {
             expense.setUser(currentUser);
             expense.setAmount(request.principalAmount());
             expense.setType(TransactionType.EXPENSE);
-            expense.setCategory("Fixed Deposit: " + request.bankName());
+            expense.setCategory(TransactionCategory.FIXED_DEPOSIT);
+            expense.setDescription(request.bankName());
             expense.setTransactionDate(request.startDate());
             expense.setSourceType(TransactionSource.FIXED_DEPOSIT);
             expense.setSourceId(savedDeposit.getId());
