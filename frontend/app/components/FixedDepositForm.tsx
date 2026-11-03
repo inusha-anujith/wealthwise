@@ -47,6 +47,7 @@ export default function FixedDepositForm() {
       if (response.ok) {
         setPrincipal("");
         setInterestRate("");
+        setIsPreExisting(false);
         router.refresh();
       } else {
         setError("Failed to save Fixed Deposit. Check server logs.");
