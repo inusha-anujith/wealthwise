@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.wealthwise.backend.entity.TransactionSource;
+import com.wealthwise.backend.exception.ConflictException;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -57,11 +60,14 @@ public class TransactionService {
         return balance;
     }
 
-    @Transactional
+        @Transactional
     public void deleteTransaction(Long id, Long userId) {
-        // Returns the same 404 whether the record is missing or belongs to someone else.
         Transaction transaction = transactionRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Transaction not found"));
+
+        if (transaction.getSourceType() != TransactionSource.MANUAL) {
+            throw new ConflictException("This entry was created automatically. Delete its stock or fixed deposit instead.");
+        }
 
         transactionRepository.delete(transaction);
     }

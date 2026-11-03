@@ -1,6 +1,7 @@
 package com.wealthwise.backend.repository;
 
 import com.wealthwise.backend.entity.Transaction;
+import com.wealthwise.backend.entity.TransactionSource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -12,9 +13,9 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByUserId(Long userId);
 
-    // Newest first, so the dashboard's "recent activity" list is correct.
     List<Transaction> findByUserIdOrderByTransactionDateDescIdDesc(Long userId);
 
-    // Finds a record only if this user owns it.
     Optional<Transaction> findByIdAndUserId(Long id, Long userId);
+
+    void deleteBySourceTypeAndSourceId(TransactionSource sourceType, Long sourceId);
 }

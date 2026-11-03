@@ -30,6 +30,9 @@ public record FixedDepositRequest(
 
         @NotNull(message = "Duration is required")
         @Positive(message = "Duration must be greater than zero")
-        Integer durationMonths
+        Integer durationMonths,
+
+        @NotNull(message = "Choose whether to deduct this deposit from cash")
+        Boolean deductFromCash
 ) {
 }

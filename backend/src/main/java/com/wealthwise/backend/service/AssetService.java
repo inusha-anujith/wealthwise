@@ -3,11 +3,14 @@ package com.wealthwise.backend.service;
 import com.wealthwise.backend.dto.AssetRequest;
 import com.wealthwise.backend.dto.AssetResponse;
 import com.wealthwise.backend.entity.Asset;
+import com.wealthwise.backend.entity.Dividend;
 import com.wealthwise.backend.entity.Transaction;
+import com.wealthwise.backend.entity.TransactionSource;
 import com.wealthwise.backend.entity.TransactionType;
 import com.wealthwise.backend.entity.User;
 import com.wealthwise.backend.exception.ResourceNotFoundException;
 import com.wealthwise.backend.repository.AssetRepository;
+import com.wealthwise.backend.repository.DividendRepository;
 import com.wealthwise.backend.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +25,7 @@ import java.util.List;
 public class AssetService {
 
     private final AssetRepository assetRepository;
+    private final DividendRepository dividendRepository;
     private final TransactionRepository transactionRepository;
 
     @Transactional
@@ -33,6 +37,7 @@ public class AssetService {
         asset.setTickerSymbol(ticker);
         asset.setSharesOwned(request.sharesOwned());
         asset.setAveragePurchasePrice(request.averagePurchasePrice());
+        Asset savedAsset = assetRepository.save(asset);
 
         if (request.deductFromCash()) {
             BigDecimal totalCost = request.averagePurchasePrice()
@@ -44,10 +49,12 @@ public class AssetService {
             expense.setType(TransactionType.EXPENSE);
             expense.setCategory("Investment: " + ticker);
             expense.setTransactionDate(LocalDate.now());
+            expense.setSourceType(TransactionSource.ASSET_PURCHASE);
+            expense.setSourceId(savedAsset.getId());
             transactionRepository.save(expense);
         }
 
-        return AssetResponse.from(assetRepository.save(asset));
+        return AssetResponse.from(savedAsset);
     }
 
     @Transactional(readOnly = true)
@@ -58,11 +65,19 @@ public class AssetService {
                 .toList();
     }
 
+    // All of these deletes succeed together or roll back together.
     @Transactional
     public void deleteAsset(Long id, Long userId) {
         Asset asset = assetRepository.findByIdAndUserId(id, userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Asset not found"));
 
+        List<Dividend> dividends = dividendRepository.findByAssetId(asset.getId());
+        for (Dividend dividend : dividends) {
+            transactionRepository.deleteBySourceTypeAndSourceId(TransactionSource.DIVIDEND, dividend.getId());
+        }
+
+        transactionRepository.deleteBySourceTypeAndSourceId(TransactionSource.ASSET_PURCHASE, asset.getId());
+        dividendRepository.deleteAll(dividends);
         assetRepository.delete(asset);
     }
 }
