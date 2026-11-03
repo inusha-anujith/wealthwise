@@ -18,6 +18,7 @@ export default function FixedDepositForm() {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [isPreExisting, setIsPreExisting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +32,7 @@ export default function FixedDepositForm() {
         interestRate: parseFloat(interestRate),
         durationMonths: parseInt(durationMonths, 10),
         startDate,
+        deductFromCash: !isPreExisting,
       };
 
       const response = await fetch("http://localhost:8080/api/fixed-deposits", {
@@ -45,6 +47,7 @@ export default function FixedDepositForm() {
       if (response.ok) {
         setPrincipal("");
         setInterestRate("");
+        setIsPreExisting(false);
         router.refresh();
       } else {
         setError("Failed to save Fixed Deposit. Check server logs.");
@@ -139,6 +142,18 @@ export default function FixedDepositForm() {
         >
           {loading ? "Allocating..." : "+ Save FD"}
         </button>
+        <div className="md:col-span-5 flex items-center gap-2.5">
+          <input
+            type="checkbox"
+            id="preExistingFd"
+            checked={isPreExisting}
+            onChange={(e) => setIsPreExisting(e.target.checked)}
+            className="w-4 h-4 rounded bg-slate-950 border-slate-800 text-blue-600 focus:ring-blue-500 focus:ring-offset-slate-900"
+          />
+          <label htmlFor="preExistingFd" className="text-xs text-slate-400">
+        Pre-existing deposit (Do not deduct cash from ledger)
+  </label>
+</div>
       </form>
     </div>
   );

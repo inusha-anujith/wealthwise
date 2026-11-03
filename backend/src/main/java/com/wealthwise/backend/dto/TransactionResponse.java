@@ -1,19 +1,20 @@
 package com.wealthwise.backend.dto;
 
 import com.wealthwise.backend.entity.Transaction;
+import com.wealthwise.backend.entity.TransactionSource;
 import com.wealthwise.backend.entity.TransactionType;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-// The only fields the API returns. The User entity is deliberately left out.
 public record TransactionResponse(
         Long id,
         TransactionType type,
         BigDecimal amount,
         String category,
         LocalDate transactionDate,
-        String description
+        String description,
+        TransactionSource sourceType
 ) {
     public static TransactionResponse from(Transaction transaction) {
         return new TransactionResponse(
@@ -22,7 +23,8 @@ public record TransactionResponse(
                 transaction.getAmount(),
                 transaction.getCategory(),
                 transaction.getTransactionDate(),
-                transaction.getDescription()
+                transaction.getDescription(),
+                transaction.getSourceType()
         );
     }
 }

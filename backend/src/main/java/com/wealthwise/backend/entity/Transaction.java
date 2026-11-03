@@ -56,4 +56,12 @@ public class Transaction {
     // Optional field for extra details, so nullable = true is implied
     @Column(length = 500)
     private String description;
+
+        @Enumerated(EnumType.STRING)
+    @Column(name = "source_type", nullable = false, length = 30)
+    private TransactionSource sourceType = TransactionSource.MANUAL;
+
+    // The ID of the stock, dividend or fixed deposit that created this entry.
+    @Column(name = "source_id")
+    private Long sourceId;
 }

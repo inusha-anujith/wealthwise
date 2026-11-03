@@ -5,6 +5,7 @@ import com.wealthwise.backend.dto.DividendResponse;
 import com.wealthwise.backend.entity.Asset;
 import com.wealthwise.backend.entity.Dividend;
 import com.wealthwise.backend.entity.Transaction;
+import com.wealthwise.backend.entity.TransactionSource;
 import com.wealthwise.backend.entity.TransactionType;
 import com.wealthwise.backend.entity.User;
 import com.wealthwise.backend.exception.ResourceNotFoundException;
@@ -27,8 +28,13 @@ public class DividendService {
 
     @Transactional
     public DividendResponse recordDividend(DividendRequest request, User currentUser) {
-        // A user can only add a dividend to their own asset.
         Asset asset = findOwnedAsset(request.assetId(), currentUser.getId());
+
+        Dividend dividend = new Dividend();
+        dividend.setAsset(asset);
+        dividend.setAmount(request.amount());
+        dividend.setPaymentDate(request.paymentDate());
+        Dividend savedDividend = dividendRepository.save(dividend);
 
         Transaction income = new Transaction();
         income.setUser(currentUser);
@@ -36,14 +42,11 @@ public class DividendService {
         income.setType(TransactionType.INCOME);
         income.setCategory("Dividend Income: " + asset.getTickerSymbol());
         income.setTransactionDate(request.paymentDate());
+        income.setSourceType(TransactionSource.DIVIDEND);
+        income.setSourceId(savedDividend.getId());
         transactionRepository.save(income);
 
-        Dividend dividend = new Dividend();
-        dividend.setAsset(asset);
-        dividend.setAmount(request.amount());
-        dividend.setPaymentDate(request.paymentDate());
-
-        return DividendResponse.from(dividendRepository.save(dividend));
+        return DividendResponse.from(savedDividend);
     }
 
     @Transactional(readOnly = true)
