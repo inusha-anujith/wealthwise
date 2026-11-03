@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgres:16
+    container_name: wealthwise-db
+    environment:
+      POSTGRES_DB: wealthwise
+      POSTGRES_USER: ${DB_USERNAME:?Set DB_USERNAME in backend/.env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Set DB_PASSWORD in backend/.env}
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - wealthwise-db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  wealthwise-db-data:
