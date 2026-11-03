@@ -1,8 +1,12 @@
 package com.wealthwise.backend.service;
 
+import com.wealthwise.backend.dto.AssetRequest;
+import com.wealthwise.backend.dto.AssetResponse;
 import com.wealthwise.backend.entity.Asset;
 import com.wealthwise.backend.entity.Transaction;
-import com.wealthwise.backend.entity.TransactionType; // NEW: Importing the Enum
+import com.wealthwise.backend.entity.TransactionType;
+import com.wealthwise.backend.entity.User;
+import com.wealthwise.backend.exception.ResourceNotFoundException;
 import com.wealthwise.backend.repository.AssetRepository;
 import com.wealthwise.backend.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,42 +22,47 @@ import java.util.List;
 public class AssetService {
 
     private final AssetRepository assetRepository;
-    private final TransactionRepository transactionRepository; 
+    private final TransactionRepository transactionRepository;
 
-    @Transactional 
-    public Asset recordAsset(Asset asset) {
-        
-        if (asset.isDeductFromCash()) {
-            
-            BigDecimal totalCost = asset.getAveragePurchasePrice()
-                    .multiply(new BigDecimal(asset.getSharesOwned()));
+    @Transactional
+    public AssetResponse recordAsset(AssetRequest request, User currentUser) {
+        String ticker = request.tickerSymbol().trim().toUpperCase();
 
-            Transaction autoExpense = new Transaction();
-            autoExpense.setUser(asset.getUser());
-            autoExpense.setAmount(totalCost);
-            
-            // FIX: Using the official Enum instead of a raw String
-            autoExpense.setType(TransactionType.EXPENSE); 
-            
-            autoExpense.setCategory("Investment: " + asset.getTickerSymbol());
-            autoExpense.setTransactionDate(LocalDate.now());
+        Asset asset = new Asset();
+        asset.setUser(currentUser);
+        asset.setTickerSymbol(ticker);
+        asset.setSharesOwned(request.sharesOwned());
+        asset.setAveragePurchasePrice(request.averagePurchasePrice());
 
-            transactionRepository.save(autoExpense);
+        if (request.deductFromCash()) {
+            BigDecimal totalCost = request.averagePurchasePrice()
+                    .multiply(BigDecimal.valueOf(request.sharesOwned()));
+
+            Transaction expense = new Transaction();
+            expense.setUser(currentUser);
+            expense.setAmount(totalCost);
+            expense.setType(TransactionType.EXPENSE);
+            expense.setCategory("Investment: " + ticker);
+            expense.setTransactionDate(LocalDate.now());
+            transactionRepository.save(expense);
         }
 
-        return assetRepository.save(asset);
+        return AssetResponse.from(assetRepository.save(asset));
     }
 
-    public List<Asset> getUserPortfolio(Long userId) {
-        return assetRepository.findByUserId(userId);
+    @Transactional(readOnly = true)
+    public List<AssetResponse> getUserPortfolio(Long userId) {
+        return assetRepository.findByUserId(userId)
+                .stream()
+                .map(AssetResponse::from)
+                .toList();
     }
-    /*  
-     * Here, I am implementing the 'Delete' portion of the CRUD lifecycle.
-     * I rely on Spring Data JPA's built-in .deleteById() method. 
-     * In a production environment, I might implement a Soft Delete(setting an isActive flag to false), 
-     * but for this specific financial tracker, a hard database delete ensures accurate recalculations.
-     */
-    public void deleteAsset(Long id) {
-        assetRepository.deleteById(id);
+
+    @Transactional
+    public void deleteAsset(Long id, Long userId) {
+        Asset asset = assetRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new ResourceNotFoundException("Asset not found"));
+
+        assetRepository.delete(asset);
     }
 }

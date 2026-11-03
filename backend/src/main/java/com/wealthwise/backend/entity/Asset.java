@@ -28,10 +28,6 @@ public class Asset {
     @Column(nullable = false)
     private BigDecimal averagePurchasePrice;
 
-    // This is the new logic flag we added for Next.js!
-    @Transient
-    private boolean deductFromCash = true;
-
     // These are the annotations that went missing and caused the crash
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

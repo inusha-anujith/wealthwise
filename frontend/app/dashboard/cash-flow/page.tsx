@@ -28,61 +28,61 @@ export default function CashFlowPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const loadTransactions = async () => {
-  if (!token) return;
+    if (!token) return;
 
-  try {
-    const res = await fetch("http://localhost:8080/api/transactions", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    try {
+      const res = await fetch("http://localhost:8080/api/transactions", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-    if (!res.ok) throw new Error("Could not load transactions");
+      if (!res.ok) throw new Error("Could not load transactions");
 
-    setTransactions(await res.json());
-  } catch (err) {
-    console.error(err);
-    setError("Failed to load your transactions.");
-  } finally {
-    setLoading(false);
-  }
-};
+      setTransactions(await res.json());
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load your transactions.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     loadTransactions();
   }, [token]);
 
   const handleSaveTransaction = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError("");
-  setSubmitting(true);
+    e.preventDefault();
+    setError("");
+    setSubmitting(true);
 
-  try {
-    const res = await fetch("http://localhost:8080/api/transactions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        amount: parseFloat(amount),
-        type,
-        category,
-        transactionDate: new Date().toISOString().split("T")[0],
-      }),
-    });
+    try {
+      const res = await fetch("http://localhost:8080/api/transactions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          amount: parseFloat(amount),
+          type,
+          category,
+          transactionDate: new Date().toISOString().split("T")[0],
+        }),
+      });
 
-    if (res.ok) {
-      setAmount("");
-      setCategory("");
-      loadTransactions();
-    } else {
-      setError("Could not save the transaction. Check the values and try again.");
+      if (res.ok) {
+        setAmount("");
+        setCategory("");
+        loadTransactions();
+      } else {
+        setError("Could not save the transaction. Check the values and try again.");
+      }
+    } catch (err) {
+      setError("Network communication error.");
+    } finally {
+      setSubmitting(false);
     }
-  } catch (err) {
-    setError("Network communication error.");
-  } finally {
-    setSubmitting(false);
-  }
-};
+  };
 
   // Calculations for Telemetry Pills
   const totalIn = transactions
@@ -95,7 +95,7 @@ export default function CashFlowPage() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      
+
       {/* Title & Scope Banner */}
       <div className="p-6 rounded-2xl bg-gradient-to-r from-blue-900/40 via-slate-900/60 to-slate-900/40 border border-blue-500/20 backdrop-blur-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -221,11 +221,10 @@ export default function CashFlowPage() {
                     <td className="p-4 text-sm font-semibold text-slate-200 capitalize">{t.category}</td>
                     <td className="p-4 text-sm">
                       <span
-                        className={`inline-block text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border ${
-                          t.type === "INCOME"
+                        className={`inline-block text-xs font-mono font-bold px-2.5 py-0.5 rounded-full border ${t.type === "INCOME"
                             ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                             : "bg-rose-500/10 text-rose-400 border-rose-500/20"
-                        }`}
+                          }`}
                       >
                         {t.type}
                       </span>
