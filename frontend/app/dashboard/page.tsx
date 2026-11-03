@@ -34,7 +34,7 @@ interface FixedDeposit {
 
 interface Transaction {
   id: number;
-  category: string;
+  categoryLabel: string;
   type: string;
   amount: number;
   transactionDate: string;
@@ -245,7 +245,7 @@ export default async function DashboardSummaryPage() {
                 {transactions.slice(0, 5).map((t) => (
                   <div key={t.id} className="p-4 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
                     <div>
-                      <div className="text-sm font-semibold text-slate-200 capitalize">{t.category}</div>
+                      <div className="text-sm font-semibold text-slate-200">{t.categoryLabel}</div>
                       <div className="text-xs text-slate-500 mt-0.5">{t.transactionDate}</div>
                     </div>
                     <div className="text-right">

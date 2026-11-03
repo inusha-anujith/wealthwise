@@ -15,6 +15,7 @@ import com.wealthwise.backend.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.wealthwise.backend.entity.TransactionCategory;
 
 import java.util.List;
 
@@ -40,7 +41,8 @@ public class DividendService {
         income.setUser(currentUser);
         income.setAmount(request.amount());
         income.setType(TransactionType.INCOME);
-        income.setCategory("Dividend Income: " + asset.getTickerSymbol());
+        income.setCategory(TransactionCategory.DIVIDEND_INCOME);
+        income.setDescription(asset.getTickerSymbol());
         income.setTransactionDate(request.paymentDate());
         income.setSourceType(TransactionSource.DIVIDEND);
         income.setSourceId(savedDividend.getId());
