@@ -16,3 +16,5 @@ out/
 # Java / Maven Builds
 target/
 *.class
+
+.env
