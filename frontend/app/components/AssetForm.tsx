@@ -90,7 +90,8 @@ export default function AssetForm() {
             </label>
             <input
               type="number"
-              step="any"
+              step="1"
+              min="1"
               required
               value={shares}
               onChange={(e) => setShares(e.target.value)}
