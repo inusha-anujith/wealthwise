@@ -19,15 +19,13 @@ import FixedDepositTable from "../../components/FixedDepositTable";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-// Dedicated data fetcher for equities/shares vertical
-async function getPortfolio(userId: number, fetchOptions: RequestInit) {
-  const res = await fetch(`http://localhost:8080/api/assets/user/${userId}`, fetchOptions);
+async function getPortfolio(fetchOptions: RequestInit) {
+  const res = await fetch("http://localhost:8080/api/assets", fetchOptions);
   return res.ok ? res.json() : [];
 }
 
-// Dedicated data fetcher for fixed deposit vertical
-async function getFixedDeposits(userId: number, fetchOptions: RequestInit) {
-  const res = await fetch(`http://localhost:8080/api/fixed-deposits/user/${userId}`, fetchOptions);
+async function getFixedDeposits(fetchOptions: RequestInit) {
+  const res = await fetch("http://localhost:8080/api/fixed-deposits", fetchOptions);
   return res.ok ? res.json() : [];
 }
 
@@ -60,8 +58,6 @@ export default async function InvestmentsPage() {
   if (!userRes.ok) {
     redirect("/login");
   }
-  const user = await userRes.json();
-  const dynamicUserId: number = user.id;
 
   /*
    * THEORY: Parallel Data Fetching via Promise.all
@@ -69,8 +65,8 @@ export default async function InvestmentsPage() {
    * requests resolve, halving total load time compared to sequential 'await' calls.
    */
   const [assets, fixedDeposits] = await Promise.all([
-    getPortfolio(dynamicUserId, fetchOptions),
-    getFixedDeposits(dynamicUserId, fetchOptions),
+    getPortfolio(fetchOptions),
+    getFixedDeposits(fetchOptions),
   ]);
 
   return (

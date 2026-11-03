@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.*;
 //using this file, expose the API endpoints to the web.
 
 
-@CrossOrigin
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor

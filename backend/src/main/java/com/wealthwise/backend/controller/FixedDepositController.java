@@ -1,25 +1,24 @@
 package com.wealthwise.backend.controller;
 
-import com.wealthwise.backend.entity.FixedDeposit;
+import com.wealthwise.backend.dto.FixedDepositRequest;
+import com.wealthwise.backend.dto.FixedDepositResponse;
 import com.wealthwise.backend.entity.User;
 import com.wealthwise.backend.service.FixedDepositService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/*
- * THEORY: Principal Binding & Entity Integrity
- * --------------------------------------------
- * 1. @CrossOrigin: Whitelists http://localhost:3000 to prevent CORS blocking.
- * 2. @AuthenticationPrincipal: Injects the authenticated User directly from Spring Security context.
- * 3. Foreign Key Association: fixedDeposit.setUser(currentUser) links the user_id foreign key
- *    before passing the entity to FixedDepositService for persistence.
- */
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/fixed-deposits")
 @RequiredArgsConstructor
@@ -28,25 +27,27 @@ public class FixedDepositController {
     private final FixedDepositService fixedDepositService;
 
     @PostMapping
-    public ResponseEntity<FixedDeposit> addFixedDeposit(
-            @Valid @RequestBody FixedDeposit fixedDeposit,
+    public ResponseEntity<FixedDepositResponse> addFixedDeposit(
+            @Valid @RequestBody FixedDepositRequest request,
             @AuthenticationPrincipal User currentUser
     ) {
-        // Enforce user ownership server-side to fulfill the non-null user_id constraint
-        fixedDeposit.setUser(currentUser);
-        FixedDeposit savedDeposit = fixedDepositService.recordFixedDeposit(fixedDeposit);
-        return ResponseEntity.ok(savedDeposit);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(fixedDepositService.recordFixedDeposit(request, currentUser));
     }
 
-    @GetMapping("/user/{userId}")
-    public ResponseEntity<List<FixedDeposit>> getUserFixedDeposits(@PathVariable Long userId) {
-        List<FixedDeposit> deposits = fixedDepositService.getUserFixedDeposits(userId);
-        return ResponseEntity.ok(deposits);
+    @GetMapping
+    public ResponseEntity<List<FixedDepositResponse>> getMyFixedDeposits(
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(fixedDepositService.getUserFixedDeposits(currentUser.getId()));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFixedDeposit(@PathVariable Long id) {
-        fixedDepositService.deleteFixedDeposit(id);
+    public ResponseEntity<Void> deleteFixedDeposit(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        fixedDepositService.deleteFixedDeposit(id, currentUser.getId());
         return ResponseEntity.noContent().build();
     }
 }

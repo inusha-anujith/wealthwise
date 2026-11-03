@@ -34,9 +34,9 @@ export default function DividendForm({ assets }: { assets: Asset[] }) {
       const selectedAsset = assets.find((a) => a.id === parseInt(assetId, 10));
 
       const dividendData = {
+        assetId: parseInt(assetId, 10),
         amount: parsedAmount,
-        paymentDate: paymentDate,
-        asset: { id: parseInt(assetId, 10) },
+        paymentDate,
       };
 
       const res = await fetch("http://localhost:8080/api/dividends", {

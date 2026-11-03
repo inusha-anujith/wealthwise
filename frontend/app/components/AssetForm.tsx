@@ -24,9 +24,9 @@ export default function AssetForm() {
     try {
       const payload = {
         tickerSymbol: ticker.toUpperCase().trim(),
-        assetName: ticker.toUpperCase().trim(),
-        sharesOwned: parseFloat(shares),
+        sharesOwned: parseInt(shares, 10),
         averagePurchasePrice: parseFloat(price),
+        deductFromCash: !isPreExisting,
       };
 
       const response = await fetch("http://localhost:8080/api/assets", {
@@ -90,7 +90,8 @@ export default function AssetForm() {
             </label>
             <input
               type="number"
-              step="any"
+              step="1"
+              min="1"
               required
               value={shares}
               onChange={(e) => setShares(e.target.value)}
