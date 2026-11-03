@@ -28,75 +28,61 @@ export default function CashFlowPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const loadTransactions = async () => {
-    if (!token) return;
+  if (!token) return;
 
-    try {
-      const headers = { Authorization: `Bearer ${token}` };
+  try {
+    const res = await fetch("http://localhost:8080/api/transactions", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      // 1. Resolve Dynamic Identity
-      const userRes = await fetch("http://localhost:8080/api/users/me", { headers });
-      if (!userRes.ok) throw new Error("Authentication failed");
-      const user = await userRes.json();
+    if (!res.ok) throw new Error("Could not load transactions");
 
-      // 2. Fetch User Ledger Records
-      const transRes = await fetch(`http://localhost:8080/api/transactions/user/${user.id}`, { headers });
-      if (transRes.ok) {
-        const data = await transRes.json();
-        setTransactions(data);
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Failed to synchronize transaction ledger.");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setTransactions(await res.json());
+  } catch (err) {
+    console.error(err);
+    setError("Failed to load your transactions.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => {
     loadTransactions();
   }, [token]);
 
   const handleSaveTransaction = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
-    setSubmitting(true);
+  e.preventDefault();
+  setError("");
+  setSubmitting(true);
 
-    try {
-      const headers = {
+  try {
+    const res = await fetch("http://localhost:8080/api/transactions", {
+      method: "POST",
+      headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
-      };
-
-      const userRes = await fetch("http://localhost:8080/api/users/me", { headers });
-      const user = await userRes.json();
-
-      const payload = {
-        userId: user.id,
+      },
+      body: JSON.stringify({
         amount: parseFloat(amount),
-        type: type,
-        category: category,
+        type,
+        category,
         transactionDate: new Date().toISOString().split("T")[0],
-      };
+      }),
+    });
 
-      const res = await fetch("http://localhost:8080/api/transactions", {
-        method: "POST",
-        headers,
-        body: JSON.stringify(payload),
-      });
-
-      if (res.ok) {
-        setAmount("");
-        setCategory("");
-        loadTransactions();
-      } else {
-        setError("Backend rejected transaction. Check logs.");
-      }
-    } catch (err) {
-      setError("Network communication error.");
-    } finally {
-      setSubmitting(false);
+    if (res.ok) {
+      setAmount("");
+      setCategory("");
+      loadTransactions();
+    } else {
+      setError("Could not save the transaction. Check the values and try again.");
     }
-  };
+  } catch (err) {
+    setError("Network communication error.");
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   // Calculations for Telemetry Pills
   const totalIn = transactions
