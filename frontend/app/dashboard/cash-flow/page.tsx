@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import MonthSwitcher from "../../components/MonthSwitcher";
 import { useAuth } from "../../context/AuthContext";
 
 const API_URL = "http://localhost:8080/api/transactions";
@@ -217,26 +218,14 @@ export default function CashFlowPage() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-slate-800">
-        <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Cash Flow</h1>
           <p className="text-slate-400 text-xs sm:text-sm mt-1">
             Record your income and expenses, and see where each month&apos;s money went.
           </p>
         </div>
-        <div className="sm:w-48">
-          <label htmlFor="month" className={labelClass}>
-            Month
-          </label>
-          <input
-            id="month"
-            type="month"
-            required
-            value={month}
-            onChange={(e) => e.target.value && setMonth(e.target.value)}
-            className={`${inputClass} font-mono`}
-          />
-        </div>
+        <MonthSwitcher month={month} onChange={setMonth} />
       </div>
 
       {error && (
