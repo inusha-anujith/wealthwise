@@ -88,8 +88,8 @@ public class TransactionService {
         // Investing moves money into an asset, so it isn't a living expense.
         BigDecimal totalExpenses = needs.add(wants);
         BigDecimal netSavings = totalIncome.subtract(totalExpenses);
-        BigDecimal remainingCash = netSavings.subtract(invested);
         BigDecimal investmentReturns = sumGroup(rows, BudgetGroup.INVESTMENT_RETURNS);
+        BigDecimal remainingCash = netSavings.subtract(invested).add(investmentReturns);
         BigDecimal savingsRate = totalIncome.signum() > 0
                 ? netSavings.multiply(BigDecimal.valueOf(100)).divide(totalIncome, 2, RoundingMode.HALF_UP)
                 : BigDecimal.ZERO;
