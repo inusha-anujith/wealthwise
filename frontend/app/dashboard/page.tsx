@@ -1,27 +1,14 @@
-/*
- * THEORY: Parallel Server-Side Aggregation & Net Worth Math
- * ----------------------------------------------------------
- * 1. Server Component: Executes in Node.js server runtime, eliminating client waterfalls.
- * 2. Next.js 15 Cookie Bridge: Awaits cookies() to resolve the JWT string safely.
- * 3. Concurrent Queries via Promise.all:
- *    - /api/users/me (User Identity)
- *    - /api/transactions/net-savings/{id} (Liquid Cash Reserve)
- *    - /api/assets/user/{id} (CDS Equities Valuation)
- *    - /api/fixed-deposits/user/{id} (Guaranteed FD Reserves)
- *    - /api/transactions/user/{id} (Recent Ledger History)
- * 4. Consolidated Net Worth:
- *    True Net Worth = Liquid Cash + Equity Holdings + Fixed Deposits
- */
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-// Data types matching Java entities
+// Data types matching the API responses
 interface Asset {
   id: number;
   tickerSymbol: string;
   sharesOwned: number;
   averagePurchasePrice: number;
+  marketValue: number;
 }
 
 interface FixedDeposit {
@@ -65,29 +52,29 @@ export default async function DashboardSummaryPage() {
 
   // 2. Parallel Fetching Across All Four Financial Verticals
   const [netSavingsRes, assetsRes, fdsRes, txRes] = await Promise.all([
-  fetch("http://localhost:8080/api/transactions/net-savings", fetchOptions),
-  fetch("http://localhost:8080/api/assets", fetchOptions),
-  fetch("http://localhost:8080/api/fixed-deposits", fetchOptions),
-  fetch("http://localhost:8080/api/transactions", fetchOptions),
-]);
+    fetch("http://localhost:8080/api/transactions/net-savings", fetchOptions),
+    fetch("http://localhost:8080/api/assets", fetchOptions),
+    fetch("http://localhost:8080/api/fixed-deposits", fetchOptions),
+    fetch("http://localhost:8080/api/transactions", fetchOptions),
+  ]);
 
   const rawNetSavings = netSavingsRes.ok ? await netSavingsRes.json() : 0;
   const assets: Asset[] = assetsRes.ok ? await assetsRes.json() : [];
   const fixedDeposits: FixedDeposit[] = fdsRes.ok ? await fdsRes.json() : [];
   const transactions: Transaction[] = txRes.ok ? await txRes.json() : [];
 
-  // 3. Precision Financial Calculations
+  // 3. Financial Calculations
   const liquidCash = typeof rawNetSavings === "number" ? rawNetSavings : parseFloat(rawNetSavings) || 0;
 
-  const totalEquitiesValue = assets.reduce(
-    (sum, a) => sum + a.sharesOwned * a.averagePurchasePrice,
-    0
-  );
+  // A fully sold stock stays in its history, but it no longer counts as a holding.
+  const activeAssets = assets.filter((asset) => asset.sharesOwned > 0);
+
+  const totalEquitiesValue = activeAssets.reduce((sum, asset) => sum + asset.marketValue, 0);
 
   // Matured deposits have already returned to cash, so counting them would double-count.
-const activeDeposits = fixedDeposits.filter((fd) => fd.status === "ACTIVE");
+  const activeDeposits = fixedDeposits.filter((fd) => fd.status === "ACTIVE");
 
-const totalFixedDepositsValue = activeDeposits.reduce(
+  const totalFixedDepositsValue = activeDeposits.reduce(
     (sum, fd) => sum + fd.principalAmount,
     0
   );
@@ -168,7 +155,7 @@ const totalFixedDepositsValue = activeDeposits.reduce(
             LKR {totalEquitiesValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-            <span>{assets.length} Active Positions</span>
+            <span>{activeAssets.length} Active Positions</span>
             <Link href="/dashboard/investments" className="text-blue-400 hover:underline">
               Portfolio →
             </Link>
@@ -182,7 +169,7 @@ const totalFixedDepositsValue = activeDeposits.reduce(
             LKR {totalFixedDepositsValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-           <span>{activeDeposits.length} Active</span>
+            <span>{activeDeposits.length} Active</span>
             <Link href="/dashboard/investments" className="text-blue-400 hover:underline">
               Deposits →
             </Link>
@@ -278,11 +265,11 @@ const totalFixedDepositsValue = activeDeposits.reduce(
             </Link>
           </div>
           <div className="p-0 flex-1">
-            {assets.length === 0 ? (
+            {activeAssets.length === 0 ? (
               <p className="p-8 text-center text-xs text-slate-500">No equity assets logged yet.</p>
             ) : (
               <div className="divide-y divide-slate-800/80">
-                {assets.map((asset) => (
+                {activeAssets.map((asset) => (
                   <div key={asset.id} className="p-4 flex items-center justify-between hover:bg-slate-800/30 transition-colors">
                     <div>
                       <div className="text-sm font-bold text-blue-400 font-mono">{asset.tickerSymbol}</div>
@@ -292,9 +279,9 @@ const totalFixedDepositsValue = activeDeposits.reduce(
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-bold text-slate-200 font-mono">
-                        LKR {(asset.sharesOwned * asset.averagePurchasePrice).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        LKR {asset.marketValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                       </div>
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider">Invested Value</span>
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider">Current Value</span>
                     </div>
                   </div>
                 ))}

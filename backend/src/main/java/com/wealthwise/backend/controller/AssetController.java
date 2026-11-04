@@ -1,7 +1,9 @@
 package com.wealthwise.backend.controller;
 
+import com.wealthwise.backend.dto.AssetPriceRequest;
 import com.wealthwise.backend.dto.AssetRequest;
 import com.wealthwise.backend.dto.AssetResponse;
+import com.wealthwise.backend.dto.AssetSaleRequest;
 import com.wealthwise.backend.entity.User;
 import com.wealthwise.backend.service.AssetService;
 import jakarta.validation.Valid;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +41,24 @@ public class AssetController {
     @GetMapping
     public ResponseEntity<List<AssetResponse>> getMyPortfolio(@AuthenticationPrincipal User currentUser) {
         return ResponseEntity.ok(assetService.getUserPortfolio(currentUser.getId()));
+    }
+
+    @PutMapping("/{id}/price")
+    public ResponseEntity<AssetResponse> updatePrice(
+            @PathVariable Long id,
+            @Valid @RequestBody AssetPriceRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(assetService.updatePrice(id, request, currentUser.getId()));
+    }
+
+    @PostMapping("/{id}/sales")
+    public ResponseEntity<AssetResponse> sellAsset(
+            @PathVariable Long id,
+            @Valid @RequestBody AssetSaleRequest request,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(assetService.sellAsset(id, request, currentUser));
     }
 
     @DeleteMapping("/{id}")
