@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import MonthSwitcher from "../../components/MonthSwitcher";
 import { useAuth } from "../../context/AuthContext";
 
 const API_URL = "http://localhost:8080/api/transactions";
@@ -224,19 +225,7 @@ export default function CashFlowPage() {
             Record your income and expenses, and see where each month&apos;s money went.
           </p>
         </div>
-        <div className="sm:w-48">
-          <label htmlFor="month" className={labelClass}>
-            Month
-          </label>
-          <input
-            id="month"
-            type="month"
-            required
-            value={month}
-            onChange={(e) => e.target.value && setMonth(e.target.value)}
-            className={`${inputClass} font-mono`}
-          />
-        </div>
+        <MonthSwitcher month={month} onChange={setMonth} />
       </div>
 
       {error && (
