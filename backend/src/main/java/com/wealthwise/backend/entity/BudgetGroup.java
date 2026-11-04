@@ -4,5 +4,6 @@ public enum BudgetGroup {
     INCOME,
     NEEDS,
     WANTS,
-    INVESTMENTS
+    INVESTMENTS,
+    INVESTMENT_RETURNS
 }

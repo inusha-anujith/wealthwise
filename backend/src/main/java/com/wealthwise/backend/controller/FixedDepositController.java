@@ -42,6 +42,15 @@ public class FixedDepositController {
         return ResponseEntity.ok(fixedDepositService.getUserFixedDeposits(currentUser.getId()));
     }
 
+
+    @PostMapping("/{id}/mature")
+    public ResponseEntity<FixedDepositResponse> matureFixedDeposit(
+            @PathVariable Long id,
+            @AuthenticationPrincipal User currentUser
+    ) {
+        return ResponseEntity.ok(fixedDepositService.matureFixedDeposit(id, currentUser));
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteFixedDeposit(
             @PathVariable Long id,

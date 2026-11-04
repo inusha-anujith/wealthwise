@@ -35,4 +35,11 @@ public class FixedDeposit {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private FixedDepositStatus status = FixedDepositStatus.ACTIVE;
+
+    @Column(name = "matured_on")
+    private LocalDate maturedOn;
 }
