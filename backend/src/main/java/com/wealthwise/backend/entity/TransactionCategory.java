@@ -29,13 +29,16 @@ public enum TransactionCategory {
     STOCK_PURCHASE("Stock Purchase", BudgetGroup.INVESTMENTS, false),
     FIXED_DEPOSIT("Fixed Deposit", BudgetGroup.INVESTMENTS, false),
 
-    FIXED_DEPOSIT_RETURN("Fixed Deposit Returned", BudgetGroup.INVESTMENT_RETURNS, false);
+    FIXED_DEPOSIT_RETURN("Fixed Deposit Returned", BudgetGroup.INVESTMENT_RETURNS, false),
+
+    STOCK_SALE("Stock Sale", BudgetGroup.INVESTMENT_RETURNS, false);
+
     private final String label;
     private final BudgetGroup group;
     private final boolean manual;
 
     public TransactionType getType() {
-    boolean moneyIn = group == BudgetGroup.INCOME || group == BudgetGroup.INVESTMENT_RETURNS;
-    return moneyIn ? TransactionType.INCOME : TransactionType.EXPENSE;
+        boolean moneyIn = group == BudgetGroup.INCOME || group == BudgetGroup.INVESTMENT_RETURNS;
+        return moneyIn ? TransactionType.INCOME : TransactionType.EXPENSE;
     }
 }
