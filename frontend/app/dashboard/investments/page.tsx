@@ -96,7 +96,7 @@ export default async function InvestmentsPage() {
         </div>
 
         {/* Constraining maximum width for balanced typography and UI hierarchy on wide monitors */}
-        <div className="max-w-5xl">
+        <div>
           <FixedDepositForm />
         </div>
 

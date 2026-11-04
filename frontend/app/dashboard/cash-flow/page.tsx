@@ -31,6 +31,7 @@ type MonthlySummary = {
   wants: number;
   totalExpenses: number;
   invested: number;
+  investmentReturns: number;
   netSavings: number;
   remainingCash: number;
   savingsRate: number;
@@ -263,7 +264,7 @@ export default function CashFlowPage() {
             {formatLkr(summary?.invested ?? 0)}
           </div>
           <div className="text-xs text-slate-500 mt-2">
-            Cash left {formatLkr(summary?.remainingCash ?? 0)}
+            Returned {formatLkr(summary?.investmentReturns ?? 0)} · Cash left {formatLkr(summary?.remainingCash ?? 0)}
           </div>
         </div>
       </div>

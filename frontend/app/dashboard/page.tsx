@@ -30,6 +30,7 @@ interface FixedDeposit {
   principalAmount: number;
   interestRate: number;
   durationMonths: number;
+  status: "ACTIVE" | "MATURED";
 }
 
 interface Transaction {
@@ -83,7 +84,10 @@ export default async function DashboardSummaryPage() {
     0
   );
 
-  const totalFixedDepositsValue = fixedDeposits.reduce(
+  // Matured deposits have already returned to cash, so counting them would double-count.
+const activeDeposits = fixedDeposits.filter((fd) => fd.status === "ACTIVE");
+
+const totalFixedDepositsValue = activeDeposits.reduce(
     (sum, fd) => sum + fd.principalAmount,
     0
   );
@@ -178,7 +182,7 @@ export default async function DashboardSummaryPage() {
             LKR {totalFixedDepositsValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-            <span>{fixedDeposits.length} Certificates</span>
+           <span>{activeDeposits.length} Active</span>
             <Link href="/dashboard/investments" className="text-blue-400 hover:underline">
               Deposits →
             </Link>

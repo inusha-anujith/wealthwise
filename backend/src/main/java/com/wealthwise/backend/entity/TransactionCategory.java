@@ -27,13 +27,15 @@ public enum TransactionCategory {
     OTHER_EXPENSE("Other Expenses", BudgetGroup.WANTS, true),
 
     STOCK_PURCHASE("Stock Purchase", BudgetGroup.INVESTMENTS, false),
-    FIXED_DEPOSIT("Fixed Deposit", BudgetGroup.INVESTMENTS, false);
+    FIXED_DEPOSIT("Fixed Deposit", BudgetGroup.INVESTMENTS, false),
 
+    FIXED_DEPOSIT_RETURN("Fixed Deposit Returned", BudgetGroup.INVESTMENT_RETURNS, false);
     private final String label;
     private final BudgetGroup group;
     private final boolean manual;
 
     public TransactionType getType() {
-        return group == BudgetGroup.INCOME ? TransactionType.INCOME : TransactionType.EXPENSE;
+    boolean moneyIn = group == BudgetGroup.INCOME || group == BudgetGroup.INVESTMENT_RETURNS;
+    return moneyIn ? TransactionType.INCOME : TransactionType.EXPENSE;
     }
 }

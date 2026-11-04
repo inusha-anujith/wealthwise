@@ -10,6 +10,7 @@ public record MonthlySummaryResponse(
         BigDecimal wants,
         BigDecimal totalExpenses,
         BigDecimal invested,
+        BigDecimal investmentReturns,
         BigDecimal netSavings,
         BigDecimal remainingCash,
         BigDecimal savingsRate,
