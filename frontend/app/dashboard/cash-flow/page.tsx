@@ -218,8 +218,8 @@ export default function CashFlowPage() {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-slate-800">
-        <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+          <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Cash Flow</h1>
           <p className="text-slate-400 text-xs sm:text-sm mt-1">
             Record your income and expenses, and see where each month&apos;s money went.
