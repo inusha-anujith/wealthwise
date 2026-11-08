@@ -2,6 +2,8 @@ import Link from "next/link";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8080";
+
 // Data types matching the API responses
 interface Asset {
   id: number;
@@ -44,7 +46,7 @@ export default async function DashboardSummaryPage() {
   };
 
   // 1. Resolve Authenticated Identity
-  const userRes = await fetch("http://localhost:8080/api/users/me", fetchOptions);
+  const userRes = await fetch(`${BACKEND_URL}/api/users/me`, fetchOptions);
   if (!userRes.ok) {
     redirect("/login");
   }
@@ -52,10 +54,10 @@ export default async function DashboardSummaryPage() {
 
   // 2. Parallel Fetching Across All Four Financial Verticals
   const [netSavingsRes, assetsRes, fdsRes, txRes] = await Promise.all([
-    fetch("http://localhost:8080/api/transactions/net-savings", fetchOptions),
-    fetch("http://localhost:8080/api/assets", fetchOptions),
-    fetch("http://localhost:8080/api/fixed-deposits", fetchOptions),
-    fetch("http://localhost:8080/api/transactions", fetchOptions),
+    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
+    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
+    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
+    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
   ]);
 
   const rawNetSavings = netSavingsRes.ok ? await netSavingsRes.json() : 0;

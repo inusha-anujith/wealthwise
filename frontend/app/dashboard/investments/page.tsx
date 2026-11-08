@@ -7,13 +7,15 @@ import FixedDepositTable from "../../components/FixedDepositTable";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
+const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8080";
+
 async function getPortfolio(fetchOptions: RequestInit) {
-  const res = await fetch("http://localhost:8080/api/assets", fetchOptions);
+  const res = await fetch(`${BACKEND_URL}/api/users/me`, fetchOptions);
   return res.ok ? res.json() : [];
 }
 
 async function getFixedDeposits(fetchOptions: RequestInit) {
-  const res = await fetch("http://localhost:8080/api/fixed-deposits", fetchOptions);
+  const res = await fetch(`${BACKEND_URL}/api/users/me`, fetchOptions);
   return res.ok ? res.json() : [];
 }
 
@@ -33,7 +35,7 @@ export default async function InvestmentsPage() {
   };
 
   // An expired or invalid session goes back to login.
-  const userRes = await fetch("http://localhost:8080/api/users/me", fetchOptions);
+  const userRes = await fetch(`${BACKEND_URL}/api/users/me`, fetchOptions);
   if (!userRes.ok) {
     redirect("/login");
   }
