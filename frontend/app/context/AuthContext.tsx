@@ -1,66 +1,63 @@
-/*
- * THEORY: Global State & The Cookie Bridge.
- * The AuthContext acts as a global state manager for the frontend.
- * We must store the JWT in TWO places: 
- * 1. localStorage (for the React Client Components to read).
- * 2. cookies (for the Next.js Server Components to intercept during rendering).
- */
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
+
+// The login token lives in an HttpOnly cookie that JavaScript can't read.
+// This context only knows who is logged in, by asking the backend.
+type User = {
+  id: number;
+  email: string;
+};
 
 type AuthContextType = {
-  token: string | null;
-  login: (token: string) => void;
-  logout: () => void;
+  user: User | null;
+  loading: boolean;
+  login: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
-  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // THEORY: Hydration. When the app boots, check if a token exists from a previous session.
-    const storedToken = localStorage.getItem("jwt");
-    if (storedToken) {
-      setToken(storedToken);
+    let isCurrent = true;
+
+    // The browser sends the cookie automatically, because /api is on the same site.
+    fetch("/api/users/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: User | null) => {
+        if (isCurrent) setUser(data);
+      })
+      .catch(() => {
+        if (isCurrent) setUser(null);
+      })
+      .finally(() => {
+        if (isCurrent) setLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  // A full page load makes the server pages read the new cookie straight away.
+  const login = useCallback(() => {
+    window.location.href = "/dashboard";
+  }, []);
+
+  // Only the backend can delete an HttpOnly cookie, so logging out is an API call.
+  const logout = useCallback(async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST" });
+    } finally {
+      window.location.href = "/login";
     }
   }, []);
 
-  const login = (jwt: string) => {
-    // 1. Save to localStorage for standard React components
-    localStorage.setItem("jwt", jwt);
-    
-    // 2. Build the Cookie Bridge. 'path=/' ensures the cookie travels to all backend routes.
-    document.cookie = `jwt=${jwt}; path=/`;
-    
-    setToken(jwt);
-    
-    /* 
-     * THEORY: The Hard Redirect.
-     * Instead of a soft Next.js router.push(), we force the browser to reload the page.
-     * This guarantees the HTTP request physically carries our newly minted cookie 
-     * to the backend Server Component, bypassing the "Bouncer Bounce-Back Loop".
-     */
-    window.location.href = "/dashboard";
-  };
-
-  const logout = () => {
-    // THEORY: Security Cleanup. Actively destroy both storage mediums to prevent session hijacking.
-    localStorage.removeItem("jwt");
-    document.cookie = "jwt=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    setToken(null);
-    router.push("/login");
-  };
-
-  return (
-    <AuthContext.Provider value={{ token, login, logout }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  return <AuthContext.Provider value={{ user, loading, login, logout }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

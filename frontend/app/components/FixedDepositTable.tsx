@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://localhost:8080/api/fixed-deposits";
+const API_URL = "/api/fixed-deposits";
 
 type FixedDeposit = {
   id: number;
@@ -31,7 +30,6 @@ const formatLkr = (value: number) =>
 
 export default function FixedDepositTable({ deposits }: { deposits: FixedDeposit[] }) {
   const router = useRouter();
-  const { token } = useAuth();
   const [error, setError] = useState("");
   const [workingId, setWorkingId] = useState<number | null>(null);
 
@@ -42,7 +40,6 @@ export default function FixedDepositTable({ deposits }: { deposits: FixedDeposit
     try {
       const res = await fetch(`${API_URL}/${path}`, {
         method,
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {

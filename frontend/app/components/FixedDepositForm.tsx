@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
 
 const inputClass =
   "w-full h-[42px] px-4 rounded-xl [color-scheme:dark] bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all";
@@ -22,7 +21,6 @@ async function readErrorMessage(res: Response) {
 
 export default function FixedDepositForm() {
   const router = useRouter();
-  const { token } = useAuth();
 
   const [bankName, setBankName] = useState("Commercial Bank");
   const [principal, setPrincipal] = useState("");
@@ -40,11 +38,10 @@ export default function FixedDepositForm() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://localhost:8080/api/fixed-deposits", {
+      const response = await fetch("/api/fixed-deposits", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           bankName,

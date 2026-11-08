@@ -40,7 +40,7 @@ const steps = [
 const techStack = ["Next.js", "TypeScript", "Tailwind CSS", "Spring Boot", "Spring Security + JWT", "PostgreSQL", "Flyway", "Docker", "JUnit"];
 
 export default function LandingPage() {
-  const { token } = useAuth();
+  const { user, loading } = useAuth();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 px-4 sm:px-8 pt-6 pb-16">
@@ -60,7 +60,7 @@ export default function LandingPage() {
         </p>
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-          {token ? (
+          {loading ? null : user ? (
             <Link
               href="/dashboard"
               className="w-full sm:w-auto px-8 py-3.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-colors"

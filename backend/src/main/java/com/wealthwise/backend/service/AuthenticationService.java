@@ -1,7 +1,6 @@
 package com.wealthwise.backend.service;
 
 import com.wealthwise.backend.dto.AuthRequest;
-import com.wealthwise.backend.dto.AuthResponse;
 import com.wealthwise.backend.entity.User;
 import com.wealthwise.backend.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,10 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
-//This handles the heavy lifting: hashing the password and generating the JWT.
-
-
+// Creates accounts, checks passwords and issues JWTs.
 @Service
 @RequiredArgsConstructor
 public class AuthenticationService {
@@ -23,25 +19,24 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthResponse register(AuthRequest request) {
-        var user = new User();
+    // Returns a new JWT for the new account.
+    public String register(AuthRequest request) {
+        User user = new User();
         user.setEmail(request.getEmail());
         user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        user.setBaseCurrency("LKR"); 
-
+        user.setBaseCurrency("LKR");
         userRepository.save(user);
-        var jwtToken = jwtService.generateToken(user);
-        
-        return AuthResponse.builder().token(jwtToken).build();
+
+        return jwtService.generateToken(user);
     }
 
-    public AuthResponse authenticate(AuthRequest request) {
+    // Throws an exception if the email or password is wrong; otherwise returns a JWT.
+    public String authenticate(AuthRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
         );
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var jwtToken = jwtService.generateToken(user);
-        
-        return AuthResponse.builder().token(jwtToken).build();
+
+        User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
+        return jwtService.generateToken(user);
     }
 }

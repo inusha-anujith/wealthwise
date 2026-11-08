@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "../../context/AuthContext";
 
-const API_URL = "http://localhost:8080/api/simulator";
+const API_URL = "/api/simulator";
 
 type Scenario = {
   name: string;
@@ -42,7 +41,6 @@ async function readErrorMessage(res: Response) {
 }
 
 export default function SimulatorPage() {
-  const { token } = useAuth();
 
   // Starting values: the October 2026 inflation rate and example returns the user can change.
   const [startingAmount, setStartingAmount] = useState("100000");
@@ -66,7 +64,6 @@ export default function SimulatorPage() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           startingAmount: parseFloat(startingAmount),

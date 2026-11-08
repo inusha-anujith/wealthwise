@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
-  const { token, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-md">
@@ -22,7 +22,7 @@ export default function Navbar() {
 
         {/* Dynamic Navigation Controls */}
         <nav className="flex items-center gap-3 sm:gap-4">
-          {token ? (
+          {loading ? null : user ? (
             <>
               <Link
                 href="/dashboard"

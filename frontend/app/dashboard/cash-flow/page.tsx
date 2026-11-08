@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import MonthSwitcher from "../../components/MonthSwitcher";
 import { useAuth } from "../../context/AuthContext";
 
-const API_URL = "http://localhost:8080/api/transactions";
+const API_URL = "/api/transactions";
 
 type TransactionType = "INCOME" | "EXPENSE";
 
@@ -60,7 +60,7 @@ async function readErrorMessage(res: Response) {
 }
 
 export default function CashFlowPage() {
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
 
   const [month, setMonth] = useState(() => today().slice(0, 7));
   const [refreshKey, setRefreshKey] = useState(0);
@@ -80,18 +80,16 @@ export default function CashFlowPage() {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    if (!token) return;
 
     // Ignores a slower response if the user has already changed month.
     let isCurrent = true;
-    const headers = { Authorization: `Bearer ${token}` };
 
     const loadData = async () => {
       try {
         const [categoriesRes, transactionsRes, summaryRes] = await Promise.all([
-          fetch(`${API_URL}/categories`, { headers }),
-          fetch(`${API_URL}?month=${month}`, { headers }),
-          fetch(`${API_URL}/summary?month=${month}`, { headers }),
+          fetch(`${API_URL}/categories`),
+          fetch(`${API_URL}?month=${month}`),
+          fetch(`${API_URL}/summary?month=${month}`),
         ]);
 
         if (!isCurrent) return;
@@ -130,7 +128,7 @@ export default function CashFlowPage() {
     return () => {
       isCurrent = false;
     };
-  }, [token, month, refreshKey, logout]);
+  }, [month, refreshKey, logout]);
 
   const resetForm = () => {
     setEditingId(null);
@@ -164,7 +162,6 @@ export default function CashFlowPage() {
     try {
       const res = await fetch(`${API_URL}/${transaction.id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {
@@ -189,7 +186,6 @@ export default function CashFlowPage() {
         method: editingId ? "PUT" : "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           category,
