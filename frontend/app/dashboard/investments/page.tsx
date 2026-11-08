@@ -10,12 +10,12 @@ import { redirect } from "next/navigation";
 const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:8080";
 
 async function getPortfolio(fetchOptions: RequestInit) {
-  const res = await fetch(`${BACKEND_URL}/api/users/me`, fetchOptions);
+  const res = await fetch(`${BACKEND_URL}/api/assets`, fetchOptions);
   return res.ok ? res.json() : [];
 }
 
 async function getFixedDeposits(fetchOptions: RequestInit) {
-  const res = await fetch(`${BACKEND_URL}/api/users/me`, fetchOptions);
+  const res = await fetch(`${BACKEND_URL}/api/fixed-deposits`, fetchOptions);
   return res.ok ? res.json() : [];
 }
 
