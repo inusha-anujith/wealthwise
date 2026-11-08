@@ -129,8 +129,7 @@ export default async function DashboardSummaryPage() {
             LKR {trueNetWorth.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </div>
           <div className="mt-4 flex items-center justify-between text-xs">
-            <span className="text-emerald-400 font-medium">Zero-Drift Certified</span>
-            <span className="text-slate-500 font-mono">ALL VERTICALS</span>
+            <span className="text-slate-400">Cash + stocks + fixed deposits</span>
           </div>
         </div>
 
