@@ -6,6 +6,12 @@
 
 > WealthWise is a portfolio project. Its figures are estimates for learning and planning, not financial or tax advice.
 
+## Demo
+
+(https://github.com/user-attachments/assets/59fdad22-ecd9-4408-ae15-4520e383ec7e)
+
+The app isn't hosted yet. To try it yourself, follow [Running locally](#running-locally).
+
 ## Screenshots
 
 | Salary Planner | Cash Flow |
