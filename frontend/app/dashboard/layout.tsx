@@ -22,6 +22,7 @@ export default function DashboardLayout({
     { label: "Executive Summary", href: "/dashboard" },
     { label: "Cash Flow", href: "/dashboard/cash-flow" },
     { label: "Investments & Portfolio", href: "/dashboard/investments" },
+    { label: "Simulator", href: "/dashboard/simulator" },
     { label: "Affordability Engine", href: "/dashboard/affordability" },
     { label: "Salary Planner", href: "/dashboard/salary-plan" },
   ];
