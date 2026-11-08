@@ -26,9 +26,10 @@ export default function SignupPage() {
       if (res.ok) {
         // The backend has set the HttpOnly login cookie; reload into the dashboard.
         login();
-      } else {
-        const errText = await res.text();
-        setError(errText || "Registration failed. Please check your credentials.");
+        } else {
+        // The backend sends {"message": "..."} or {"field": "..."}; show the first message.
+        const body = await res.json().catch(() => ({}));
+        setError(String(body.message ?? Object.values(body)[0] ?? "Could not create your account."));
       }
     } catch (err) {
       setError("Network communication error with authentication service.");
@@ -47,7 +48,7 @@ export default function SignupPage() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Create your account</h2>
           <p className="text-sm text-slate-400 mt-2">
-            Join WealthWise to start tracking assets with zero drift
+            Plan your salary and track your savings
           </p>
         </div>
 
@@ -79,6 +80,8 @@ export default function SignupPage() {
                 Password
               </label>
               <input
+                minLength={8}
+                maxLength={72}
                 type="password"
                 required
                 value={password}
@@ -86,6 +89,7 @@ export default function SignupPage() {
                 placeholder="••••••••"
                 className="w-full px-4 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-100 placeholder-slate-600 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
+                <p className="mt-2 text-xs text-slate-500">At least 8 characters.</p>
             </div>
 
             <button
