@@ -8,7 +8,7 @@
 
 ## Demo
 
-(https://github.com/user-attachments/assets/59fdad22-ecd9-4408-ae15-4520e383ec7e)
+https://github.com/user-attachments/assets/59fdad22-ecd9-4408-ae15-4520e383ec7e
 
 The app isn't hosted yet. To try it yourself, follow [Running locally](#running-locally).
 
