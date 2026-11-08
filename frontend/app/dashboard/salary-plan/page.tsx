@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import MonthSwitcher from "../../components/MonthSwitcher";
 import { useAuth } from "../../context/AuthContext";
 
-const API_URL = "http://localhost:8080/api/salary-plan";
+const API_URL = "/api/salary-plan";
 
 type BudgetLine = {
   name: string;
@@ -85,7 +85,7 @@ function budgetMessage(line: BudgetLine) {
 }
 
 export default function SalaryPlanPage() {
-  const { token, logout } = useAuth();
+  const { logout } = useAuth();
 
   const [month, setMonth] = useState(currentMonth);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -105,14 +105,12 @@ export default function SalaryPlanPage() {
   const [highInterestDebt, setHighInterestDebt] = useState("0");
 
   useEffect(() => {
-    if (!token) return;
 
     let isCurrent = true;
 
     const loadPlan = async () => {
       try {
         const res = await fetch(`${API_URL}?month=${month}`, {
-          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!isCurrent) return;
@@ -158,7 +156,7 @@ export default function SalaryPlanPage() {
     return () => {
       isCurrent = false;
     };
-  }, [token, month, refreshKey, logout]);
+  }, [month, refreshKey, logout]);
 
   const handleEdit = () => {
     if (plan) {
@@ -184,7 +182,6 @@ export default function SalaryPlanPage() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           grossSalary: parseFloat(grossSalary),

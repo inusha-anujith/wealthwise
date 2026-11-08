@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useAuth } from "../context/AuthContext";
 
 export default function SignupPage() {
@@ -10,7 +9,6 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
   const { login } = useAuth();
 
   const handleSignup = async (e: React.FormEvent) => {
@@ -19,19 +17,15 @@ export default function SignupPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/signup", {
+      const res = await fetch("/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       if (res.ok) {
-        const data = await res.json();
-        if (data.token) {
-          login(data.token);
-        } else {
-          router.push("/login");
-        }
+        // The backend has set the HttpOnly login cookie; reload into the dashboard.
+        login();
       } else {
         const errText = await res.text();
         setError(errText || "Registration failed. Please check your credentials.");

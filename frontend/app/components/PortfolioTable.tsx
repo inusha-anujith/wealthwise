@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://localhost:8080/api/assets";
+const API_URL = "/api/assets";
 
 type Asset = {
   id: number;
@@ -53,7 +52,6 @@ async function readErrorMessage(res: Response) {
 
 export default function PortfolioTable({ assets }: { assets: Asset[] }) {
   const router = useRouter();
-  const { token } = useAuth();
 
   const [panel, setPanel] = useState<ActivePanel>(null);
   const [price, setPrice] = useState("");
@@ -84,7 +82,6 @@ export default function PortfolioTable({ assets }: { assets: Asset[] }) {
         method: isSale ? "POST" : "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(
           isSale
@@ -116,7 +113,6 @@ export default function PortfolioTable({ assets }: { assets: Asset[] }) {
     try {
       const res = await fetch(`${API_URL}/${asset.id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!res.ok) {

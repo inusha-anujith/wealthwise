@@ -2,11 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
 
 export default function AssetForm() {
   const router = useRouter();
-  const { token } = useAuth();
 
   const [ticker, setTicker] = useState("");
   const [shares, setShares] = useState("");
@@ -29,11 +27,10 @@ export default function AssetForm() {
         deductFromCash: !isPreExisting,
       };
 
-      const response = await fetch("http://localhost:8080/api/assets", {
+      const response = await fetch("/api/assets", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(payload),
       });

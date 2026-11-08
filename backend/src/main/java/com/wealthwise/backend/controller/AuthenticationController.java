@@ -1,15 +1,17 @@
 package com.wealthwise.backend.controller;
 
+import com.wealthwise.backend.config.AuthCookies;
 import com.wealthwise.backend.dto.AuthRequest;
 import com.wealthwise.backend.dto.AuthResponse;
 import com.wealthwise.backend.service.AuthenticationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-
-//using this file, expose the API endpoints to the web.
-
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -17,14 +19,31 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationService service;
+    private final AuthCookies authCookies;
 
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(service.register(request));
+        String token = service.register(request);
+        return withCookie(authCookies.create(token), request.getEmail());
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
-        return ResponseEntity.ok(service.authenticate(request));
+        String token = service.authenticate(request);
+        return withCookie(authCookies.create(token), request.getEmail());
+    }
+
+    // Only the server can delete an HttpOnly cookie, because JavaScript can't touch it.
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, authCookies.clear().toString())
+                .build();
+    }
+
+    private ResponseEntity<AuthResponse> withCookie(ResponseCookie cookie, String email) {
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new AuthResponse(email));
     }
 }

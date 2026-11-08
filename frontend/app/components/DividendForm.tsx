@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "../context/AuthContext";
 
 type Asset = {
   id: number;
@@ -11,7 +10,6 @@ type Asset = {
 
 export default function DividendForm({ assets }: { assets: Asset[] }) {
   const router = useRouter();
-  const { token } = useAuth();
 
   const [assetId, setAssetId] = useState("");
   const [amount, setAmount] = useState("");
@@ -39,11 +37,10 @@ export default function DividendForm({ assets }: { assets: Asset[] }) {
         paymentDate,
       };
 
-      const res = await fetch("http://localhost:8080/api/dividends", {
+      const res = await fetch("/api/dividends", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(dividendData),
       });

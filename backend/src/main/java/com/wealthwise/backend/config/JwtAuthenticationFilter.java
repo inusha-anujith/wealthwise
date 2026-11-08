@@ -4,6 +4,7 @@ import com.wealthwise.backend.service.JwtService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,13 +20,19 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-// Extending OncePerRequestFilter ensures this check happens exactly once per API call.
+// Runs once per request: finds the JWT, checks it and tells Spring Security who the user is.
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
+
+    // Login, signup and logout must still work when the browser has an old or broken cookie.
+    @Override
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
+        return request.getServletPath().startsWith("/api/auth/");
+    }
 
     @Override
     protected void doFilterInternal(
@@ -34,15 +41,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        final String authHeader = request.getHeader("Authorization");
+        final String jwt = resolveToken(request);
 
-        // No Bearer token: continue without logging the user in. Spring Security rejects it later if the route is protected.
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        // No token: continue as a guest. Protected routes will refuse the request.
+        if (jwt == null || jwt.isBlank()) {
             filterChain.doFilter(request, response);
             return;
         }
-
-        final String jwt = authHeader.substring(7);
 
         try {
             final String userEmail = jwtService.extractUsername(jwt);
@@ -65,7 +70,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // Let the request continue to the controller.
         filterChain.doFilter(request, response);
+    }
+
+    // The Authorization header wins if both are present; otherwise use the login cookie.
+    private String resolveToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (AuthCookies.COOKIE_NAME.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
     }
 }

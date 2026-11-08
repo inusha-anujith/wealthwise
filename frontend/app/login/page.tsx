@@ -17,16 +17,15 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const res = await fetch("http://localhost:8080/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
 
       if (res.ok) {
-        const data = await res.json();
-        // Dispatches token to AuthContext, creates cookie, and initiates redirect
-        login(data.token);
+        // The backend has set the HttpOnly login cookie; reload into the dashboard.
+        login();
       } else {
         setError("Invalid email address or password.");
       }
@@ -47,7 +46,7 @@ export default function LoginPage() {
         <div className="text-center mb-8">
           <h2 className="text-3xl font-extrabold text-white tracking-tight">Sign in to WealthWise</h2>
           <p className="text-sm text-slate-400 mt-2">
-            Access your isolated financial portfolio and cash flow ledger
+            Log in to see your salary plan, cash flow and investments.
           </p>
         </div>
 

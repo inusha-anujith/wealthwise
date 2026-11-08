@@ -1,14 +1,5 @@
 package com.wealthwise.backend.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
-@Data
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
-public class AuthResponse {
-    private String token;
+// The token is sent in an HttpOnly cookie, never in the response body.
+public record AuthResponse(String email) {
 }
