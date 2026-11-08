@@ -53,11 +53,11 @@ export default async function DashboardSummaryPage() {
   const user = await userRes.json();
 
   // 2. Parallel Fetching Across All Four Financial Verticals
-  const [netSavingsRes, assetsRes, fdsRes, txRes] = await Promise.all([
-    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
-    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
-    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
-    fetch(`${BACKEND_URL}/api/users/me`, fetchOptions),
+    const [netSavingsRes, assetsRes, fdsRes, txRes] = await Promise.all([
+    fetch(`${BACKEND_URL}/api/transactions/net-savings`, fetchOptions),
+    fetch(`${BACKEND_URL}/api/assets`, fetchOptions),
+    fetch(`${BACKEND_URL}/api/fixed-deposits`, fetchOptions),
+    fetch(`${BACKEND_URL}/api/transactions`, fetchOptions),
   ]);
 
   const rawNetSavings = netSavingsRes.ok ? await netSavingsRes.json() : 0;
