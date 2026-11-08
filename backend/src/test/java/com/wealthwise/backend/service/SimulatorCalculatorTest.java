@@ -34,8 +34,12 @@ class SimulatorCalculatorTest {
         assertMoney("8.55", SimulatorCalculator.afterTaxRate(money("9.5"), money("10")));
     }
 
-    // when tax is 0%, the rate should stay the same.
+    @Test
+    void keepsTheRateWhenThereIsNoTax() {
+        assertMoney("9", SimulatorCalculator.afterTaxRate(money("9"), money("0")));
+    }
 
+    // compareTo ignores decimal places, so 9 and 9.00 count as equal.
     private static void assertMoney(String expected, BigDecimal actual) {
         assertEquals(0, money(expected).compareTo(actual), "Expected " + expected + " but got " + actual);
     }
