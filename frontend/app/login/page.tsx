@@ -27,7 +27,8 @@ export default function LoginPage() {
         // The backend has set the HttpOnly login cookie; reload into the dashboard.
         login();
       } else {
-        setError("Invalid email address or password.");
+        const body = await res.json().catch(() => ({}));
+        setError(String(body.message ?? Object.values(body)[0] ?? "Could not log you in."));
       }
     } catch (err) {
       setError("Network communication error with authentication service.");

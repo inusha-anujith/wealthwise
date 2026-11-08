@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.wealthwise.backend.dto.SignupRequest;
+import jakarta.validation.Valid;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,15 +25,15 @@ public class AuthenticationController {
     private final AuthCookies authCookies;
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> register(@RequestBody AuthRequest request) {
-        String token = service.register(request);
-        return withCookie(authCookies.create(token), request.getEmail());
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody SignupRequest request) {
+        String token = service.register(request.email(), request.password());
+        return withCookie(authCookies.create(token), request.email());
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
-        String token = service.authenticate(request);
-        return withCookie(authCookies.create(token), request.getEmail());
+    public ResponseEntity<AuthResponse> authenticate(@Valid @RequestBody AuthRequest request) {
+        String token = service.authenticate(request.email(), request.password());
+        return withCookie(authCookies.create(token), request.email());
     }
 
     // Only the server can delete an HttpOnly cookie, because JavaScript can't touch it.

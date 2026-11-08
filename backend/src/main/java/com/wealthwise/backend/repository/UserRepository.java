@@ -24,4 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
      * Optional<User>: A modern Java feature preventing NullPointerExceptions. It means "A user might be returned, or it might be empty."
      */
     Optional<User> findByEmail(String email);
+
+    boolean existsByEmail(String email);
 }
