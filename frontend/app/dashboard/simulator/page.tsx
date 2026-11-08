@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import SimulatorChart from "../../components/SimulatorChart";
 
 const API_URL = "/api/simulator";
 
@@ -175,6 +176,8 @@ export default function SimulatorPage() {
               </div>
             ))}
           </div>
+
+          <SimulatorChart scenarios={result.scenarios} totalContributed={result.totalContributed} />
 
           <p className="text-xs text-slate-500">
             These are projections from the rates you entered, not predictions. The FD rate shown is after{" "}
