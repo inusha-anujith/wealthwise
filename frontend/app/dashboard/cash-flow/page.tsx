@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import MonthSwitcher from "../../components/MonthSwitcher";
+import SpendingChart from "../../components/SpendingChart";
 import { useAuth } from "../../context/AuthContext";
 
 const API_URL = "/api/transactions";
@@ -35,6 +36,12 @@ type MonthlySummary = {
   netSavings: number;
   remainingCash: number;
   savingsRate: number;
+  categories: {
+    category: string;
+    label: string;
+    group: "INCOME" | "NEEDS" | "WANTS" | "INVESTMENTS" | "INVESTMENT_RETURNS";
+    total: number;
+  }[];
 };
 
 // en-CA formats dates as YYYY-MM-DD in the user's local time zone.
@@ -264,6 +271,8 @@ export default function CashFlowPage() {
           </div>
         </div>
       </div>
+
+      {summary && <SpendingChart categories={summary.categories} />}
 
       <div className="p-6 sm:p-8 rounded-2xl bg-slate-900/60 border border-slate-800 shadow-xl">
         <h2 className="text-base font-bold text-white mb-6">
